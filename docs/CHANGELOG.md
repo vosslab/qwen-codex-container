@@ -46,3 +46,5 @@
   model run demonstrated that 10 seconds was intermittent.
 - Used Codex 0.147's current reasoning-summary catalog field after live parser
   output showed Ollama's legacy field name was ignored.
+- Made the lifecycle E2E runner narrate the direct human start, wait,
+  reconnect, verification, and stop workflow.

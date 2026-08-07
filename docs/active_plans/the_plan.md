@@ -459,11 +459,13 @@ implementation test.
 
 Requirements:
 
-- maximum 10 lines
+- short, readable commands
 - maximum 80 characters per line
 - flat linear commands
 - no loops
 - no helper functions
+- report each lifecycle step before running it
+- describe the expected state before each file-existence check
 - use repo-facing tools
 - very few or no environment variables
 - no direct Podman commands
@@ -479,12 +481,26 @@ Target shape:
 #!/bin/bash
 set -eu
 source source_me.sh
+
+echo "Preparing lifecycle test (docs/e2e-test.txt must be absent)..."
 test ! -e docs/e2e-test.txt
-trap 'result=$?; python3 stop.py || test $result -ne 0; exit $result' EXIT
+trap 'r=$?; echo "Stopping..."; python3 stop.py || test $r -ne 0; exit $r' EXIT
+
+echo "Starting a fresh Codex agent..."
 python3 start.py -P 'write a test file docs/e2e-test.txt' < /dev/null
-sleep 20; test -e docs/e2e-test.txt
+
+echo "Waiting for Codex to create docs/e2e-test.txt..."
+sleep 20
+test -e docs/e2e-test.txt
+echo "Created docs/e2e-test.txt."
+
+echo "Reconnecting to the same Codex agent..."
 python3 reconnect.py -P 'now remove the file'
-sleep 20; test ! -e docs/e2e-test.txt
+
+echo "Waiting for Codex to remove docs/e2e-test.txt..."
+sleep 20
+test ! -e docs/e2e-test.txt
+echo "Removed docs/e2e-test.txt."
 ```
 
 The exact repo-supported flags should come from the implementation rather than
@@ -500,8 +516,9 @@ verify the file is absent
 stop
 ```
 
-The precheck protects an existing file at the test path. The exit trap always
-runs `stop.py`, including after an assertion failure.
+The messages narrate the same start, wait, reconnect, and stop flow a person
+uses. The precheck protects an existing file at the test path. The exit trap
+always runs `stop.py`, including after an assertion failure.
 
 The test should exercise the real user interface. Shared Python unit tests cover
 internal command construction and decisions.
