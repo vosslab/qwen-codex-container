@@ -48,3 +48,5 @@
   output showed Ollama's legacy field name was ignored.
 - Made the lifecycle E2E runner narrate the direct human start, wait,
   reconnect, verification, and stop workflow.
+- Rebuilt the README around the durable-checkout promise, a first-session path,
+  an example conversation, lifecycle limits, and newcomer doc routes.
